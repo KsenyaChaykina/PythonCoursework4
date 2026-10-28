@@ -1,0 +1,31 @@
+{% extends 'sending_messages/base.html' %}
+{% block content %}
+<div class="col-12">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Удалить сообщение?</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="" class="form-floating">
+                <div class="table-responsive small">
+                    <p>Вы уверены, что хотите удалить сообщение <strong>"{{ object.subject }}"</strong>?</p>
+                </div>
+                <p style="color: red;">Внимание! Все рассылки, использующие это сообщение, будут также удалены.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-danger">Да, удалить</button>
+                    <a href="{% url 'sending_messages:message_list' %}" style="margin-left: 10px;">Отмена</a>
+                </form>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<p style="color: red;">⚠️ Внимание: все рассылки, использующие это сообщение, будут также удалены.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" style="background-color: red; color: white; padding: 5px 15px;">Да, удалить</button>
+    <a href="{% url 'sending_messages:message_list' %}" style="margin-left: 10px;">Отмена</a>
+</form>

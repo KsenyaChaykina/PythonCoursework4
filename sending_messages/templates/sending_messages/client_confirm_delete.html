@@ -1,0 +1,22 @@
+{% extends 'sending_messages/base.html' %}
+{% block content %}
+<div class="col-12">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Удаление получателя</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="" class="form-floating">
+                <div class="table-responsive small">
+                    <p>Вы уверены, что хотите полностью удалить клиента <strong>{{ object.full_name }}</strong> ({{ object.email }}) из базы данных?</p>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-danger">Да, удалить</button>
+                    <a href="{% url 'sending_messages:client_list' %}" style="margin-left: 10px;">Отмена</a>
+                </form>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

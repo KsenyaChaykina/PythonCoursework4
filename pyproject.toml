@@ -1,0 +1,38 @@
+[project]
+name = "pythoncoursework4"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django (>=6.1.2,<7.0.0)",
+    "psycopg2-binary (>=2.9.13,<3.0.0)",
+    "pillow (>=13.0.0,<14.0.0)",
+    "python-dotenv (>=1.2.4,<2.0.0)",
+    "ipython (>=9.17.1,<10.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.lint.dependencies]
+isort = "^9.0.2"
+black = "^26.10.1"
+mypy = "^2.4.0"
+flake8 = "^7.4.1"
+
+[tool.mypy]
+disallow_untyped_defs = true
+warn_return_any = true
+exclude = 'venv'
+
+[tool.black]
+line-length = 119
+
+[tool.isort]
+line_length = 119

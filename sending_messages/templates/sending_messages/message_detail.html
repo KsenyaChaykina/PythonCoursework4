@@ -1,0 +1,24 @@
+{% extends 'sending_messages/base.html' %}
+{% block content %}
+<div class="col-12">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Просмотр сообщения</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="" class="form-floating">
+                <div class="table-responsive small">
+                    <p><strong>Тема письма:</strong> {{ msg.subject }}</p>
+                    <hr>
+                    <p><strong>Тело письма:</strong></p>
+                    <p>{{ msg.body|linebreaks }}</p>
+                    <hr>
+                </div>
+
+                <a href="{% url 'sending_messages:message_update' msg.pk %}">Редактировать</a> |
+                <a href="{% url 'sending_messages:message_list' %}">Назад к списку сообщений</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

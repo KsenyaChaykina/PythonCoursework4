@@ -1,0 +1,24 @@
+{% extends 'sending_messages/base.html' %}
+{% block content %}
+<div class="col-12">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">{% if form.instance.pk %}Редактирование сообщения{% else %}Новое сообщение{% endif %}</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" action="" class="form-floating">
+                <div class="table-responsive small">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button class="p-2 btn btn-outline-primary">Сохранить</button>
+                    </form>
+                </div>
+                <br>
+                <a href="{% url 'sending_messages:message_list' %}">Отмена</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
