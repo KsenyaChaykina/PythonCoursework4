@@ -1,0 +1,49 @@
+{% extends 'sending_messages/base.html' %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4 text-center font-weight-normal">Панель мониторинга рассылок</h2>
+
+    <!-- Сетка карточек с показателями -->
+    <div class="row g-4 mb-5">
+
+        <!-- Карточка 1: Всего рассылок -->
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm bg-light">
+                <div class="card-body text-center py-4">
+                    <div class="fs-1 text-primary mb-2">📋</div>
+                    <h6 class="card-subtitle mb-2 text-muted uppercase small fw-bold">Всего рассылок</h6>
+                    <h2 class="card-title display-5 fw-bold mb-0 text-dark">{{ total_newsletters }}</h2>
+                    <small class="text-muted">создано в системе</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка 2: Активные рассылки -->
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm text-white bg-success">
+                <div class="card-body text-center py-4">
+                    <div class="fs-1 mb-2">⚡</div>
+                    <h6 class="card-subtitle mb-2 text-white-50 uppercase small fw-bold">Активные рассылки</h6>
+                    <h2 class="card-title display-5 fw-bold mb-0">{{ active_newsletters }}</h2>
+                    <small class="text-white-50">отправляются прямо сейчас</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка 3: Уникальные получатели -->
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm bg-light">
+                <div class="card-body text-center py-4">
+                    <div class="fs-1 text-info mb-2">👥</div>
+                    <h6 class="card-subtitle mb-2 text-muted uppercase small fw-bold">Уникальные получатели</h6>
+                    <h2 class="card-title display-5 fw-bold mb-0 text-dark">{{ total_clients }}</h2>
+                    <small class="text-muted">клиентов в базе данных</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Ниже может идти ваш основной контент главной страницы -->
+</div>
+{% endblock %}

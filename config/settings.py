@@ -16,6 +16,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "sending_messages",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -91,3 +92,19 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+AUTH_USER_MODEL = "users.CustomUser"
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.yandex.ru"
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = "chaikinaksusha@yandex.ru"
+EMAIL_HOST_PASSWORD = "vfwiboyiohvlhdik"
+SERVER_EMAIL = EMAIL_HOST_USER
+
+PASSWORD_RESET_TIMEOUT = 3600
