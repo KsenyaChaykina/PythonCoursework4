@@ -7,55 +7,63 @@ from sending_messages.models import Client, Message, Newsletter
 class StyleFormMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for fild_name, fild in self.fields.items():
-            if isinstance(fild, BooleanField):
-                fild.widget.attrs['class'] = 'form-check-input'
+        for field_name, field in self.fields.items():
+            # Проверяем, является ли виджет чекбоксом (одиночным или множественным)
+            if isinstance(field.widget, (forms.CheckboxInput, forms.CheckboxSelectMultiple)):
+                field.widget.attrs["class"] = "form-check-input"
             else:
-                fild.widget.attrs['class'] = 'form-control'
+                field.widget.attrs["class"] = "form-control"
 
 
 class ClientForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Client
-        fields = ['full_name', 'email', 'comment']
+        fields = ["full_name", "email", "comment"]
         widgets = {
-            'full_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Иванов Иван Иванович'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'example@mail.com'}),
-            'comment': forms.Textarea(
-                attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Дополнительная информация...'}),
+            "full_name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Иванов Иван Иванович"}),
+            "email": forms.EmailInput(attrs={"class": "form-control", "placeholder": "example@mail.com"}),
+            "comment": forms.Textarea(
+                attrs={"class": "form-control", "rows": 3, "placeholder": "Дополнительная информация..."}
+            ),
         }
 
 
 class MessageForm(StyleFormMixin, ModelForm):
     class Meta:
         model = Message
-        fields = ['subject', 'body']
+        fields = ["subject", "body"]
         widgets = {
-            'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите тему письма'}),
-            'body': forms.Textarea(
-                attrs={'class': 'form-control', 'rows': 6, 'placeholder': 'Введите текст сообщения'}),
+            "subject": forms.TextInput(attrs={"class": "form-control", "placeholder": "Введите тему письма"}),
+            "body": forms.Textarea(
+                attrs={"class": "form-control", "rows": 6, "placeholder": "Введите текст сообщения"}
+            ),
         }
 
 
 class NewsletterForm(StyleFormMixin, ModelForm):
+    # Поля даты и времени с поддержкой формата datetime-local для успешного сохранения
+    start_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-control"}),
+        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
+        label="Время начала",
+    )
+
+    end_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local", "class": "form-control"}),
+        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"],
+        label="Время окончания",
+    )
+
     # Поля с множественным выбором клиентов в виде чекбоксов
     recipients = forms.ModelMultipleChoiceField(
-        queryset=Client.objects.all(),
-        widget=forms.CheckboxSelectMultiple,
-        label="Получатели"
+        queryset=Client.objects.all(), widget=forms.CheckboxSelectMultiple, label="Получатели"
     )
 
     # Выпадающий список для выбора заранее созданного сообщения
     message = forms.ModelChoiceField(
-        queryset=Message.objects.all(),
-        empty_label="Выберите сообщение из списка",
-        label="Сообщение"
+        queryset=Message.objects.all(), empty_label="Выберите сообщение из списка", label="Сообщение"
     )
 
     class Meta:
         model = Newsletter
-        fields = ['start_time', 'end_time', 'message', 'recipients']
-        widgets = {
-            'start_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
-            'end_time': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
-        }
+        fields = ["start_time", "end_time", "message", "recipients"]

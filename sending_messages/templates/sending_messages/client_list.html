@@ -21,8 +21,8 @@
                             {% for client in clients %}
                             <td><a href="{% url 'sending_messages:client_detail' client.pk %}">{{ client.full_name }}</a></td>
                             <td>{{ client.email }}</td>
-                            <td><a href="{% url 'sending_messages:client_update' client.pk %}">Редактировать</a> |
-                                <a href="{% url 'sending_messages:client_delete' client.pk %}" style="color: red;">Удалить</a></td>
+                            <td><a href="{% url 'sending_messages:client_update' client.pk %}" class="btn btn-sm btn-outline-primary py-1">Редактировать</a>
+                                <a href="{% url 'sending_messages:client_delete' client.pk %}" class="btn btn-sm btn-outline-danger py-1">Удалить</a></td>
                         </tr>
                         {% empty %}
                         <tr>
