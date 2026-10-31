@@ -40,5 +40,4 @@ urlpatterns = [
     path("newsletter/new/", NewsletterCreateView.as_view(), name="newsletter_create"),
     path("newsletter/<int:pk>/edit/", NewsletterUpdateView.as_view(), name="newsletter_update"),
     path("newsletter/<int:pk>/delete/", NewsletterDeleteView.as_view(), name="newsletter_delete"),
-    # path('newsletter/<int:pk>/send/', send_newsletter_view, name='newsletter_send'),
 ]

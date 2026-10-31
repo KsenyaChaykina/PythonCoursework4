@@ -1,9 +1,14 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from sending_messages.models import Client, Message, Newsletter
 from sending_messages.forms import ClientForm, MessageForm, NewsletterForm
+from sending_messages.services import get_messages_from_cache, get_clients_from_cache
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 
 """ ПО КЛИЕНТАМ """
 
@@ -14,6 +19,9 @@ class ClientListView(ListView):
     template_name = "sending_messages/client_list.html"
     context_object_name = "clients"
 
+    def get_queryset(self):
+        return get_clients_from_cache()
+
 
 # Детальная информация о клиенте
 class ClientDetailView(DetailView):
@@ -23,7 +31,7 @@ class ClientDetailView(DetailView):
 
 
 # Добавление нового клиента
-class ClientCreateView(CreateView):
+class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
     template_name = "sending_messages/client_form.html"
@@ -54,6 +62,9 @@ class MessageListView(ListView):
     template_name = "sending_messages/message_list.html"
     context_object_name = "messages"
 
+    def get_queryset(self):
+        return get_messages_from_cache()
+
 
 # Просмотр конкретного сообщения
 class MessageDetailView(DetailView):
@@ -63,11 +74,16 @@ class MessageDetailView(DetailView):
 
 
 # Создание сообщения
-class MessageCreateView(CreateView):
+class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = MessageForm
     template_name = "sending_messages/message_form.html"
     success_url = reverse_lazy("sending_messages:message_list")
+
+    def form_valid(self, form):
+        # Привязываем текущего пользователя к сообщению
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 # Редактирование сообщения
@@ -112,7 +128,7 @@ class MainPageView(TemplateView):
 
 """ ПО РАССЫЛКАМ """
 
-
+@method_decorator(cache_page(60 * 15), name='dispatch')
 class NewsletterListView(ListView):
     model = Newsletter
     template_name = "sending_messages/newsletter_list.html"
@@ -120,9 +136,13 @@ class NewsletterListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        for newsletter in queryset:
-            newsletter.update_status()
-        return queryset
+
+        # Если у пользователя есть право просматривать любые рассылки (менеджер)
+        if self.request.user.has_perm("mailing.can_view_all_mailings"):
+            return queryset
+
+        # Обычный пользователь видит только свои рассылки
+        return queryset.filter(owner=self.request.user)
 
 
 class NewsletterDetailView(DetailView):
@@ -135,18 +155,43 @@ class NewsletterDetailView(DetailView):
         return obj
 
 
-class NewsletterCreateView(CreateView):
+class NewsletterCreateView(LoginRequiredMixin, CreateView):
     model = Newsletter
     form_class = NewsletterForm
     template_name = "sending_messages/newsletter_form.html"
     success_url = reverse_lazy("sending_messages:newsletter_list")
 
+    def form_valid(self, form):
+        # Автоматически назначаем текущего пользователя владельцем рассылки
+        form.instance = form.save(commit=False)
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
-class NewsletterUpdateView(UpdateView):
+
+class NewsletterUpdateView(LoginRequiredMixin, UpdateView):
     model = Newsletter
     form_class = NewsletterForm
     template_name = "sending_messages/newsletter_form.html"
     success_url = reverse_lazy("sending_messages:newsletter_list")
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Менеджер может отключать чужие рассылки
+        if self.request.user.has_perm("mailing.can_disable_mailing"):
+            return queryset
+
+        # Обычный владелец может редактировать только свою рассылку
+        return queryset.filter(owner=self.request.user)
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+
+        # Защитная проверка: если обычный юзер пытается зайти в чужой объект
+        if self.object.owner != self.request.user and not self.request.user.has_perm("mailing.can_disable_mailing"):
+            raise PermissionDenied("Вы не являетесь владельцем этой рассылки.")
+
+        return self.object
 
 
 class NewsletterDeleteView(DeleteView):

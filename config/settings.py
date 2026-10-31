@@ -108,3 +108,15 @@ EMAIL_HOST_PASSWORD = "vfwiboyiohvlhdik"
 SERVER_EMAIL = EMAIL_HOST_USER
 
 PASSWORD_RESET_TIMEOUT = 3600
+
+CACHE_ENABLED = True
+if CACHE_ENABLED:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": "redis://localhost:6379/1",
+            "OPTIONS": {
+                "protocol": 2,  # Форсирует использование старого протокола RESP2
+            },
+        }
+    }
