@@ -1,0 +1,70 @@
+{% extends 'sending_messages/base.html' %}
+{% block content %}
+<div class="col-12">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">
+                {% if form.instance.pk %}Редактирование рассылки{% else %}Новая рассылка{% endif %}
+            </h4>
+        </div>
+        <div class="card-body">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>Пожалуйста, исправьте ошибки ниже:</strong>
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <!-- Оставлена одна корректная форма -->
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Поле: Время начала -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.start_time.label }}</label>
+                    {{ form.start_time }}
+                    <div class="text-danger small">{{ form.start_time.errors }}</div>
+                </div>
+
+                <!-- Поле: Время окончания -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.end_time.label }}</label>
+                    {{ form.end_time }}
+                    <div class="text-danger small">{{ form.end_time.errors }}</div>
+                </div>
+
+                <!-- Поле: Сообщение -->
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.message.label }}</label>
+                    {{ form.message }}
+                    <div class="text-danger small">{{ form.message.errors }}</div>
+                </div>
+
+
+                <!-- Поле: Получатели (с исправленными кликами и скроллом) -->
+                <div class="mb-3">
+                    <label class="form-label"><strong>{{ form.recipients.label }}:</strong></label>
+                    <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                        {% for checkbox in form.recipients %}
+                            <div class="form-check mb-2">
+                                {{ checkbox.tag }}
+                                <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-danger small">{{ form.recipients.errors }}</div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="p-2 btn btn-outline-primary">Сохранить</button>
+                </div>
+                <br>
+                <a href="{% url 'sending_messages:message_list' %}" >Отмена</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

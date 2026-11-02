@@ -1,0 +1,66 @@
+{% extends 'sending_messages/base.html' %}
+{% block content %}
+<div class="col-12">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="my-0 font-weight-normal">Список всех рассылок</h4>
+        </div>
+        <div class="card-body">
+            {% if newsletters %}
+            <div class="table-responsive small">
+                <table class="table table-striped table-sm align-middle">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Сообщение</th>
+                        <th scope="col">Дата начала</th>
+                        <th scope="col">Дата окончания</th>
+                        <th scope="col">Статус</th>
+                        <th scope="col">Получатели</th>
+                        <th scope="col" class="text-end">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for newsletter in newsletters %}
+                    <tr>
+                        <td><a href="{% url 'sending_messages:newsletter_detail' newsletter.pk %}">{{ forloop.counter }}</a></td>
+                        <td>
+                            <strong>{{ newsletter.message.subject|default:newsletter.message }}</strong>
+                        </td>
+                        <td>{{ newsletter.start_time|date:"d.m.Y H:i" }}</td>
+                        <td>{{ newsletter.end_time|date:"d.m.Y H:i" }}</td>
+                        <td>{{ newsletter.status }}</td>
+                        <td>
+                            <span class="badge bg-secondary"
+                                  title="{% for recipient in newsletter.recipients.all %}{{ recipient }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+                                            {{ newsletter.recipients.count }} чел.
+                                        </span>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group">
+                                {% if user == newsletter.owner %}
+                                <a href="{% url 'sending_messages:newsletter_update' newsletter.pk %}"
+                                   class="btn btn-sm btn-outline-primary py-1">
+                                    Редактировать
+                                </a>
+                                <a href="{% url 'sending_messages:newsletter_delete' newsletter.pk %}"
+                                   class="btn btn-sm btn-outline-danger py-1">
+                                    Удалить
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center my-3" role="alert">
+                Рассылок пока нет.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

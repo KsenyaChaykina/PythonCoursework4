@@ -21,9 +21,12 @@
                             {% for msg in messages %}
                             <td><a href="{% url 'sending_messages:message_detail' msg.pk %}">{{ msg.subject }}</a></td>
                             <td>{{ msg.body|truncatewords:10 }}</td>
-                            <td><a href="{% url 'sending_messages:message_update' msg.pk %}">Редактировать</a> |
+                            <td>
+                                {% if user == message.owner %}
+                                <a href="{% url 'sending_messages:message_update' msg.pk %}" class="btn btn-sm btn-outline-primary py-1">Редактировать</a>
                                 <a href="{% url 'sending_messages:message_delete' msg.pk %}"
-                                   style="color: red;">Удалить</a>
+                                   class="btn btn-sm btn-outline-danger py-1">Удалить</a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% empty %}

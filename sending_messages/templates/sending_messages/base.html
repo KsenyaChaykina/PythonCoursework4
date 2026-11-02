@@ -23,12 +23,17 @@
             <div class="card mb-4 box-shadow">
                 <div class="card-body">
                     <table class="table table-striped">
-                        <nav class="ms-5">
-                            <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:client_list' %}">Получатели
-                                рассылок</a>
-                            <a class="p-2 btn btn-outline-primary" href="/contacts/">Рассылки</a>
-                            <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:message_list' %}">Сообщения</a>
-                        </nav>
+                        {% if user.is_authenticated %}
+                            <nav class="ms-5">
+                                <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:client_list' %}">Получатели
+                                    рассылок</a>
+                                <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:newsletter_list' %}">Рассылки</a>
+                                <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:message_list' %}">Сообщения</a>
+                                <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:index' %}">Статистика</a>
+                            </nav>
+                        {% else %}
+                            <h4>Войдите в личный кабинет</h4>
+                        {% endif %}
                     </table>
                 </div>
             </div>
@@ -40,21 +45,37 @@
                 <div class="card-header">
                     <h4 class="my-0 font-weight-normal">Добавить нового получателя</h4>
                 </div>
-                <div class="card-body">
-                    <form method="post" action="" class="form-floating">
-                        <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:client_create' %}">Добавить</a>
-                    </form>
-                </div>
+                {% if user.is_authenticated %}
+                    <div class="card-body">
+                        <form method="post" action="" class="form-floating">
+                            <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:client_create' %}">Добавить</a>
+                        </form>
+                    </div>
+                {% endif %}
             </div>
             <div class="card mb-4 box-shadow">
                 <div class="card-header">
                     <h4 class="my-0 font-weight-normal">Создать новое сообщение</h4>
                 </div>
-                <div class="card-body">
-                    <form method="post" action="" class="form-floating">
-                        <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:message_create' %}">Создать</a>
-                    </form>
+                {% if user.is_authenticated %}
+                    <div class="card-body">
+                        <form method="post" action="" class="form-floating">
+                            <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:message_create' %}">Создать</a>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Создать рассылку</h4>
                 </div>
+                {% if user.is_authenticated %}
+                    <div class="card-body">
+                        <form method="post" action="" class="form-floating">
+                            <a class="p-2 btn btn-outline-primary" href="{% url 'sending_messages:newsletter_create' %}">Создать</a>
+                        </form>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
