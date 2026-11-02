@@ -8,13 +8,11 @@
         <div class="card-body">
             <form method="post" action="" class="form-floating">
                 <div class="table-responsive small">
-                    <p>Вы уверены, что хотите полностью удалить клиента <strong>{{ object.full_name }}</strong> ({{ object.email }}) из базы данных?</p>
+                    <p>Вы уверены, что хотите удалить клиента <strong>{{ object.full_name }}</strong> ({{ object.email }})?</p>
                 </div>
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="button" class="btn btn-danger">Да, удалить</button>
-                    <a href="{% url 'sending_messages:client_list' %}" style="margin-left: 10px;">Отмена</a>
-                </form>
+                {% csrf_token %}
+                <button type="button" class="btn btn-danger">Да, удалить</button>
+                <a href="{% url 'sending_messages:client_list' %}" style="margin-left: 10px;">Отмена</a>
             </form>
         </div>
     </div>

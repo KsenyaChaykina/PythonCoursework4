@@ -1,14 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
+from django.contrib import messages
+from django.views import View
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from sending_messages.models import Client, Message, Newsletter
 from sending_messages.forms import ClientForm, MessageForm, NewsletterForm
-from sending_messages.services import get_messages_from_cache, get_clients_from_cache
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
+from sending_messages.services import send_newsletter_mailing
 
 """ ПО КЛИЕНТАМ """
 
@@ -20,7 +20,15 @@ class ClientListView(ListView):
     context_object_name = "clients"
 
     def get_queryset(self):
-        return get_clients_from_cache()
+        queryset = super().get_queryset()
+        user = self.request.user
+
+        # Менеджеры видят ВСЕХ клиентов
+        if user.groups.filter(name="Managers").exists() or user.is_staff:
+            return queryset
+
+        # Обычные пользователи видят ТОЛЬКО своих клиентов
+        return queryset.filter(owner=user)
 
 
 # Детальная информация о клиенте
@@ -36,6 +44,11 @@ class ClientCreateView(LoginRequiredMixin, CreateView):
     form_class = ClientForm
     template_name = "sending_messages/client_form.html"
     success_url = reverse_lazy("sending_messages:client_list")
+
+    def form_valid(self, form):
+        # Привязываем текущего пользователя к сообщению
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
 
 
 # Редактирование данных клиента
@@ -63,7 +76,15 @@ class MessageListView(ListView):
     context_object_name = "messages"
 
     def get_queryset(self):
-        return get_messages_from_cache()
+        queryset = super().get_queryset()
+        user = self.request.user
+
+        # Менеджеры видят ВСЕ сообщения
+        if user.groups.filter(name="Managers").exists() or user.is_staff:
+            return queryset
+
+        # Обычные пользователи видят ТОЛЬКО свои сообщения
+        return queryset.filter(owner=user)
 
 
 # Просмотр конкретного сообщения
@@ -128,21 +149,22 @@ class MainPageView(TemplateView):
 
 """ ПО РАССЫЛКАМ """
 
-@method_decorator(cache_page(60 * 15), name='dispatch')
-class NewsletterListView(ListView):
+
+class NewsletterListView(LoginRequiredMixin, ListView):
     model = Newsletter
     template_name = "sending_messages/newsletter_list.html"
     context_object_name = "newsletters"
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        user = self.request.user
 
-        # Если у пользователя есть право просматривать любые рассылки (менеджер)
-        if self.request.user.has_perm("mailing.can_view_all_mailings"):
+        # Менеджеры видят ВСЕ рассылки
+        if user.groups.filter(name="Managers").exists() or user.is_staff:
             return queryset
 
-        # Обычный пользователь видит только свои рассылки
-        return queryset.filter(owner=self.request.user)
+        # Обычные пользователи видят ТОЛЬКО свои
+        return queryset.filter(owner=user)
 
 
 class NewsletterDetailView(DetailView):
@@ -210,3 +232,20 @@ def newsletter_create(request):
         form = NewsletterForm()
 
     return render(request, "sending_messages/newsletter_form.html", {"form": form})
+
+
+class TriggerNewsletterView(View):
+    """ Контроллер для ручного или триггерного запуска отправки рассылки """
+
+    def post(self, request, pk):
+        # Проверяем существование рассылки
+        newsletter = get_object_or_404(Newsletter, pk=pk)
+
+        # Передаем ID рассылки в сервисный слой
+        result_message = send_newsletter_mailing(newsletter.id)
+
+        # Выводим пользователю системное push-уведомление с результатом
+        messages.info(request, result_message)
+
+        # Перенаправляем обратно на страницу рассылки (замените 'newsletter_detail' на ваш URL-name)
+        return redirect('sending_messages/newsletter_detail', pk=pk)
